@@ -3,9 +3,17 @@ const express=require("express");
 
 const connect=require('./Config/db');
 
+//importing Routers
+const userRouter=require('./Routes/user');
+
+//importing Error Handler
 const errorHandler=require('./Middlewares/error');
 
 const app=express();
+
+app.use(express.json());
+
+app.use('/api/v1/user',userRouter);
 
 app.use(errorHandler);
 const port=process.env.port || 8000
