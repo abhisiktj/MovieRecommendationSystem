@@ -1,5 +1,11 @@
 const CustomError=require("../Utils/customError.js");
 const statusCodes=require('http-status-codes');
+const expressAsyncHandler=require('express-async-handler');
+//for unavailable routes
+const notFound=expressAsyncHandler(async(req,res)=>{
+  throw new CustomError(statusCodes.NOT_FOUND,'URL Not Available');
+});
+
 const errorHandler=async(error,req,res,next)=>{
  
   console.log(error.message);
@@ -13,4 +19,4 @@ const errorHandler=async(error,req,res,next)=>{
           res.status(statusCodes.INTERNAL_SERVER_ERROR).json({sucess:false,message:"Internal Server Error"});
 }
 
-module.exports=errorHandler;
+module.exports={notFound,errorHandler};
