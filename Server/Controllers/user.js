@@ -4,7 +4,6 @@ const statusCodes = require("http-status-codes");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodeCache = require("node-cache");
-const myCache = new nodeCache();
 
 //importing models
 const User = require("../Models/user");
@@ -13,6 +12,10 @@ const User = require("../Models/user");
 const CustomError = require("../Utils/customError");
 const { generateTOTP } = require("../Utils/generateOtp");
 const { sendMail, sendMails } = require("../Utils/mail");
+
+//init
+const myCache = new nodeCache({ stdTTL: 100, checkperiod: 120 });
+myCache.set('key',10);
 
 //register user(signup)
 const registerUser = expressAsyncHandler(async (req, res) => {
@@ -156,7 +159,7 @@ const changePassword = expressAsyncHandler(
 
 //forgetPassword
 /*
-  controller generates otp and caches it against username
+  controller generates otp and caches it against userId
   sends mail to client with otp
 */
 const forgetPassword = expressAsyncHandler(async (req, res) => {
@@ -165,7 +168,21 @@ const forgetPassword = expressAsyncHandler(async (req, res) => {
     throw new CustomError(statusCodes.BAD_REQUEST, "Email Field Is Required");
   }
 
-  //add code to check user in db and otp in cache
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new CustomError(
+      statusCodes.BAD_REQUEST,
+      "No user found with given mail"
+    );
+  }
+
+  const id = user._id;
+  if (myCache.has(id.toString())) {
+    throw new CustomError(
+      statusCodes.BAD_REQUEST,
+      "Otp generated recently wait for few minutes"
+    );
+  }
 
   const otp = generateTOTP();
   const subject = "OTP For Password Resetting";
@@ -178,9 +195,21 @@ const forgetPassword = expressAsyncHandler(async (req, res) => {
       "Unable to Send OTP via Mail"
     );
 
-  //add code to store otp in cache
+  const success = myCache.set(id.toString(), otp);
+  
+  if(!success){
+    throw new CustomError(statusCodes.INTERNAL_SERVER_ERROR,"Error While Caching OTP,try later");
+  }
 
-  res.send("Mail sent");
+  res.status(statusCodes.OK).json({
+    success:true,
+    data:{
+      message:"Succesfully generated OTP and sent to mail"
+    }
+  })
+
 });
+
+
 
 module.exports = { registerUser, loginUser, changePassword, forgetPassword };
