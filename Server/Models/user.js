@@ -15,6 +15,10 @@ const userSchema=mongoose.Schema({
         type:String,
         required:[true,"Password field is required"],
     },
+    twofaenabled:{
+        type:Boolean,
+        default:false
+    }
 },{timestamps:true});
 
 

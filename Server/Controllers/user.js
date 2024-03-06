@@ -259,7 +259,7 @@ const resetPassword = expressAsyncHandler(async (req, res) => {
     { password: hashedPassword },
     { new: true }
   );
-  
+
   res.status(statusCodes.CREATED).json({
     success: true,
     data: {
@@ -268,10 +268,53 @@ const resetPassword = expressAsyncHandler(async (req, res) => {
   });
 });
 
+//controller to toggle two fa
+const toggletwofa = expressAsyncHandler(async (req, res) => {
+  const { password, toggle } = req.body;
+  if (!password) {
+    throw new CustomError(
+      statusCodes.BAD_REQUEST,
+      "Password required for enabling Two factor authentication"
+    );
+  }
+
+  if (!toggle=="true" && !toggle=="false") {
+    throw new CustomError(
+      statusCodes.BAD_REQUEST,
+      "Toggle must be a true or false"
+    );
+  }
+ 
+  let flag=false;
+  if(toggle=="true")
+     flag=true;
+  
+
+  const user = req.user;
+  const isMatched = bcrypt.compare(password, user?.password);
+
+  if (!isMatched)
+    throw new CustomError(statusCodes.UNAUTHORIZED, "Incorrect Password");
+
+  if(toggle==user.twofaenabled)
+    throw new CustomError(statusCodes.BAD_REQUEST,`Two factor is alredy set to ${toggle}`);
+
+  await User.findByIdAndUpdate(user._id,{twofaenabled:flag});
+  res.status(statusCodes.ACCEPTED).json({
+      success:true,
+      data:{
+        message:`Two Factor Authentication set to ${toggle}`
+      }
+  })
+});
+
+
+
 module.exports = {
   registerUser,
   loginUser,
   changePassword,
   forgetPassword,
   resetPassword,
+  toggletwofa,
 };

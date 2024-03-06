@@ -6,6 +6,7 @@ const {
   changePassword,
   forgetPassword,
   resetPassword,
+  toggletwofa
 } = require("../Controllers/user");
 const auth = require("../Middlewares/auth");
 
@@ -19,5 +20,6 @@ router.patch("/password/reset",resetPassword);
 
 //authorized routes
 router.patch("/password/change", auth, changePassword);
+router.patch('/toggletwofa',auth, toggletwofa )
 
 module.exports = router;
