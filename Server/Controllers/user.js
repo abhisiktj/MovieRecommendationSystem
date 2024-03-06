@@ -14,8 +14,8 @@ const { generateTOTP } = require("../Utils/generateOtp");
 const { sendMail, sendMails } = require("../Utils/mail");
 
 //init
-const myCache = new nodeCache({ stdTTL: 100, checkperiod: 120 });
-myCache.set('key',10);
+const myCache = new nodeCache({ stdTTL: 1000, checkperiod: 120 });
+myCache.set("key", 10);
 
 //register user(signup)
 const registerUser = expressAsyncHandler(async (req, res) => {
@@ -196,20 +196,82 @@ const forgetPassword = expressAsyncHandler(async (req, res) => {
     );
 
   const success = myCache.set(id.toString(), otp);
-  
-  if(!success){
-    throw new CustomError(statusCodes.INTERNAL_SERVER_ERROR,"Error While Caching OTP,try later");
+
+  if (!success) {
+    throw new CustomError(
+      statusCodes.INTERNAL_SERVER_ERROR,
+      "Error While Caching OTP,try later"
+    );
   }
 
   res.status(statusCodes.OK).json({
-    success:true,
-    data:{
-      message:"Succesfully generated OTP and sent to mail"
-    }
-  })
-
+    success: true,
+    data: {
+      message: "Succesfully generated OTP and sent to mail",
+      otp,
+    },
+  });
 });
 
+/*
+controller to change password using otp
+*/
+const resetPassword = expressAsyncHandler(async (req, res) => {
+  const { otp, email, password } = req.body;
+  if (!otp) {
+    throw new CustomError(statusCodes.BAD_REQUEST, "OTP required");
+  }
+  if (!email) {
+    throw new CustomError(statusCodes.BAD_REQUEST, "Email field is required");
+  }
 
+  if (!password) {
+    throw new password(statusCodes.BAD_REQUEST, "Password filed is required");
+  }
 
-module.exports = { registerUser, loginUser, changePassword, forgetPassword };
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new CustomError(
+      statusCodes.BAD_REQUEST,
+      "No User with given email id"
+    );
+  }
+
+  const id = user._id.toString();
+  const isStored = myCache.has(id);
+  if (!isStored) {
+    throw new CustomError(statusCodes.NOT_FOUND, "OTP expired");
+  }
+
+  const storedOtp = myCache.take(id);
+  console.log(storedOtp);
+  if (Number(otp) != Number(storedOtp))
+    throw new CustomError(
+      statusCodes.UNAUTHORIZED,
+      "Incorrect OTP.Generate OTP again"
+    );
+
+  const salting = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salting);
+
+  const updatedUser = await User.findByIdAndUpdate(
+    user._id,
+    { password: hashedPassword },
+    { new: true }
+  );
+  
+  res.status(statusCodes.CREATED).json({
+    success: true,
+    data: {
+      message: "Password Changed.Try logging in again",
+    },
+  });
+});
+
+module.exports = {
+  registerUser,
+  loginUser,
+  changePassword,
+  forgetPassword,
+  resetPassword,
+};
