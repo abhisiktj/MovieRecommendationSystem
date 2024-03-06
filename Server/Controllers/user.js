@@ -3,12 +3,15 @@ const expressAsyncHandler = require("express-async-handler");
 const statusCodes = require("http-status-codes");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const nodeCache=require('node-cache');
+const myCache=new nodeCache();
 
 //importing models
 const User = require("../Models/user");
 
 //importing utils
 const CustomError = require("../Utils/customError");
+const {generateTOTP}=require('../Utils/generateOtp')
 
 //register user(signup)
 const registerUser = expressAsyncHandler(async (req, res) => {
@@ -152,6 +155,12 @@ const changePassword = expressAsyncHandler(
   })
 );
 
+//forgetPassword
+/*
+  controller generated otp and caches it against username
+  sends mail to client with otp
+*/
+const forgetPassword=expressAsyncHandler(async(req,res)=>{
+});
 
-
-module.exports = { registerUser, loginUser, changePassword };
+module.exports = { registerUser, loginUser, changePassword,forgetPassword };
