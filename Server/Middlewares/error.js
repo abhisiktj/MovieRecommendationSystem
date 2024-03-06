@@ -1,4 +1,4 @@
-const CustomError=require('../Utils/customError');
+const CustomError=require("../Utils/customError.js");
 const statusCodes=require('http-status-codes');
 const errorHandler=async(error,req,res,next)=>{
  

@@ -14,8 +14,6 @@ const CustomError = require("../Utils/customError");
 const registerUser = expressAsyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
-  
-
   if (!name) {
     throw new CustomError(
       statusCodes.BAD_REQUEST,
@@ -37,11 +35,10 @@ const registerUser = expressAsyncHandler(async (req, res) => {
     );
   }
   const existingUser = await User.findOne({ email });
-  if (existingUser){
+  if (existingUser) {
     throw new CustomError(statusCodes.BAD_REQUEST, "User Already Exist");
   }
 
- 
   const salting = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salting);
   const user = await User.create({
@@ -64,10 +61,9 @@ const registerUser = expressAsyncHandler(async (req, res) => {
       token,
     },
   });
-
 });
 
-//loggin in user
+//logging in user
 const loginUser = expressAsyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -85,7 +81,11 @@ const loginUser = expressAsyncHandler(async (req, res) => {
   }
 
   const user = await User.findOne({ email });
-  if (!user) throw new CustomError(statusCodes.UNAUTHORIZED, "No User With Such Email exists");
+  if (!user)
+    throw new CustomError(
+      statusCodes.UNAUTHORIZED,
+      "No User With Such Email exists"
+    );
 
   const isMatched = bcrypt.compare(password, user?.password);
 
@@ -108,4 +108,50 @@ const loginUser = expressAsyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { registerUser, loginUser };
+//change password
+const changePassword = expressAsyncHandler(
+  expressAsyncHandler(async (req, res) => {
+    const { password, newPassword } = req.body;
+
+    if (!password) {
+      throw new CustomError(
+        statusCodes.BAD_REQUEST,
+        "Password Field Can not be empty"
+      );
+    }
+    if (!newPassword) {
+      throw new CustomError(
+        statusCodes.BAD_REQUEST,
+        "Password Field Can not be empty"
+      );
+    }
+
+    
+    const isMatched = await bcrypt.compare(password, req.user?.password);
+    
+    const email=req.user.email;
+    if (!isMatched)
+      throw new CustomError(statusCodes.UNAUTHORIZED, "Incorrect Password");
+
+    const salting = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salting);
+
+    const user = await User.findOneAndUpdate(
+      { email },
+      { password: hashedPassword },
+      { new: true }
+    );
+
+  
+   res.status(statusCodes.CREATED).json({
+      success:true,
+      data:{
+          message:"Password Updated"
+      }
+   });
+  })
+);
+
+
+
+module.exports = { registerUser, loginUser, changePassword };
