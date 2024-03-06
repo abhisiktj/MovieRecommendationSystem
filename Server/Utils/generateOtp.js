@@ -1,7 +1,8 @@
 const crypto = require('crypto');
 
 const generateTOTP = (timeStep = 30, tokenLength = 6) => {
-    
+
+    const length=20;
     const secret=crypto.randomBytes(length).toString('base64');
     const randomBytes = crypto.randomBytes(4);
     const randomValue = randomBytes.readUInt32LE();

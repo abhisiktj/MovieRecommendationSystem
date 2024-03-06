@@ -3,15 +3,16 @@ const expressAsyncHandler = require("express-async-handler");
 const statusCodes = require("http-status-codes");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const nodeCache=require('node-cache');
-const myCache=new nodeCache();
+const nodeCache = require("node-cache");
+const myCache = new nodeCache();
 
 //importing models
 const User = require("../Models/user");
 
 //importing utils
 const CustomError = require("../Utils/customError");
-const {generateTOTP}=require('../Utils/generateOtp')
+const { generateTOTP } = require("../Utils/generateOtp");
+const { sendMail, sendMails } = require("../Utils/mail");
 
 //register user(signup)
 const registerUser = expressAsyncHandler(async (req, res) => {
@@ -129,10 +130,9 @@ const changePassword = expressAsyncHandler(
       );
     }
 
-    
     const isMatched = await bcrypt.compare(password, req.user?.password);
-    
-    const email=req.user.email;
+
+    const email = req.user.email;
     if (!isMatched)
       throw new CustomError(statusCodes.UNAUTHORIZED, "Incorrect Password");
 
@@ -145,22 +145,42 @@ const changePassword = expressAsyncHandler(
       { new: true }
     );
 
-  
-   res.status(statusCodes.CREATED).json({
-      success:true,
-      data:{
-          message:"Password Updated"
-      }
-   });
+    res.status(statusCodes.CREATED).json({
+      success: true,
+      data: {
+        message: "Password Updated",
+      },
+    });
   })
 );
 
 //forgetPassword
 /*
-  controller generated otp and caches it against username
+  controller generates otp and caches it against username
   sends mail to client with otp
 */
-const forgetPassword=expressAsyncHandler(async(req,res)=>{
+const forgetPassword = expressAsyncHandler(async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    throw new CustomError(statusCodes.BAD_REQUEST, "Email Field Is Required");
+  }
+
+  //add code to check user in db and otp in cache
+
+  const otp = generateTOTP();
+  const subject = "OTP For Password Resetting";
+  const text = `Your OTP is ${otp}.Do not share it!!!. Valid for 10 minutes`;
+  const mailSent = await sendMail(email, subject, text);
+
+  if (!mailSent)
+    throw new CustomError(
+      statusCodes.INTERNAL_SERVER_ERROR,
+      "Unable to Send OTP via Mail"
+    );
+
+  //add code to store otp in cache
+
+  res.send("Mail sent");
 });
 
-module.exports = { registerUser, loginUser, changePassword,forgetPassword };
+module.exports = { registerUser, loginUser, changePassword, forgetPassword };
