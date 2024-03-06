@@ -4,11 +4,15 @@ const csvToDB=require('./Utils/Movies/csvToDb');
   
 const connect=require('./Config/db');
 
+//imprting models
+const Movie=require('./Models/movie');
+
 //importing Routers
 const userRouter=require('./Routes/user');
 
 //importing Error Handler
 const errorHandler=require('./Middlewares/error');
+const movie = require("./Models/movie");
 
 const app=express();
 
@@ -23,7 +27,11 @@ const MONGO_URL=process.env.MONGO_URL;
 const start=async()=>{
 try{
      await connect(MONGO_URL);
-     //Adds csv file to movie db whenever server is started
+     /*
+     Drops the Movies collections
+     Adds csv file to movies collection whenever server is started
+     */
+     movie.collection.drop();
      await csvToDB(__dirname);
      app.listen(port,()=>{
         console.log(`Server running on port ${port}`);

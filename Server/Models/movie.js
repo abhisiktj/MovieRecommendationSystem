@@ -14,9 +14,13 @@ const movieSchema=mongoose.Schema({
     },
     movie_title:{
         type:String
+    },
+    favourites:{
+        type:Number,
+        default:0
     }
 
 },{timestamps:true});
 
 
-module.exports=mongoose.model("Movies",movieSchema);
+module.exports=mongoose.model("Movie",movieSchema);
