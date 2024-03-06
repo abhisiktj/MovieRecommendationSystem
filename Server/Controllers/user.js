@@ -3,7 +3,7 @@ const expressAsyncHandler = require("express-async-handler");
 const statusCodes = require("http-status-codes");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const nodeCache = require("node-cache");
+
 
 //importing models
 const User = require("../Models/user");
@@ -11,11 +11,16 @@ const User = require("../Models/user");
 //importing utils
 const CustomError = require("../Utils/customError");
 const { generateTOTP } = require("../Utils/generateOtp");
-const { sendMail, sendMails } = require("../Utils/mail");
-const{set,get,take,has}=require('../Utils/User/Cache/loginOTP');
+const { sendMail } = require("../Utils/mail");
 
-//init
-const myCache = new nodeCache({ stdTTL: 1000, checkperiod: 120 });
+const {loginOTPCache,
+  resetPasswordOTPCache,
+  setCache,
+  getCache,
+  takeCache,
+  hasCache}=require('../Utils/User/cache');
+
+
 
 //register user(signup)
 const registerUser = expressAsyncHandler(async (req, res) => {
@@ -156,7 +161,7 @@ const otpTwoFAUser = expressAsyncHandler(async (req,res) => {
     throw new CustomError(statusCodes.UNAUTHORIZED, "Incorrect Password");
   
     const id=user._id;
-    if (has(id.toString())) {
+    if (hasCache(loginOTPCache,id.toString())) {
       throw new CustomError(
         statusCodes.BAD_REQUEST,
         "Otp generated recently wait for few minutes"
@@ -174,7 +179,7 @@ const otpTwoFAUser = expressAsyncHandler(async (req,res) => {
     "Unable to Send OTP via Mail"
   );
 
-  const success=set(user._id.toString(),otp);
+  const success=setCache(loginOTPCache,user._id.toString(),otp);
   if (!success) {
     throw new CustomError(
       statusCodes.INTERNAL_SERVER_ERROR,
@@ -227,12 +232,12 @@ const loginTwoFA=expressAsyncHandler(async(req,res)=>{
     throw new CustomError(statusCodes.UNAUTHORIZED, "Incorrect Password");
   
     const id = user._id.toString();
-    const isStored = has(id);
+    const isStored = hasCache(loginOTPCache,id);
     if (!isStored) {
       throw new CustomError(statusCodes.NOT_FOUND, "OTP expired");
     }
 
-    const storedOtp = take(id);
+    const storedOtp = takeCache(loginOTPCache,id);
     console.log(storedOtp);
     if (Number(otp) != Number(storedOtp))
       throw new CustomError(
@@ -320,7 +325,9 @@ const forgetPassword = expressAsyncHandler(async (req, res) => {
   }
 
   const id = user._id;
-  if (myCache.has(id.toString())) {
+  const has=hasCache(resetPasswordOTPCache,id.toString());
+  console.log(has);
+  if (has) {
     throw new CustomError(
       statusCodes.BAD_REQUEST,
       "Otp generated recently wait for few minutes"
@@ -338,15 +345,15 @@ const forgetPassword = expressAsyncHandler(async (req, res) => {
       "Unable to Send OTP via Mail"
     );
 
-  const success = myCache.set(id.toString(), otp);
 
-  if (!success) {
-    throw new CustomError(
-      statusCodes.INTERNAL_SERVER_ERROR,
-      "Error While Caching OTP,try later"
-    );
-  }
-
+  
+    const success=setCache(resetPasswordOTPCache,user._id.toString(),otp);
+    if (!success) {
+      throw new CustomError(
+        statusCodes.INTERNAL_SERVER_ERROR,
+        "Error While Caching OTP,try later"
+      );
+      }
   res.status(statusCodes.OK).json({
     success: true,
     data: {
@@ -381,12 +388,12 @@ const resetPassword = expressAsyncHandler(async (req, res) => {
   }
 
   const id = user._id.toString();
-  const isStored = myCache.has(id);
+  const isStored=hasCache(resetPasswordOTPCache,id);
   if (!isStored) {
     throw new CustomError(statusCodes.NOT_FOUND, "OTP expired");
   }
 
-  const storedOtp = myCache.take(id);
+  const storedOtp=takeCache(resetPasswordOTPCache,id);
   console.log(storedOtp);
   if (Number(otp) != Number(storedOtp))
     throw new CustomError(
