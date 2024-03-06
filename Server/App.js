@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express=require("express");
-
+const csvToDB=require('./Utils/Movies/csvToDb');
+  
 const connect=require('./Config/db');
 
 //importing Routers
@@ -22,6 +23,8 @@ const MONGO_URL=process.env.MONGO_URL;
 const start=async()=>{
 try{
      await connect(MONGO_URL);
+     //Adds csv file to movie db whenever server is started
+     await csvToDB(__dirname);
      app.listen(port,()=>{
         console.log(`Server running on port ${port}`);
      })

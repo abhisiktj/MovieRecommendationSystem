@@ -1,16 +1,16 @@
 const mongoose=require('mongoose');
 
-const ActorSchema = new Schema({ name: String });
-const GenreSchema = new Schema({ name: String });
-const moviesSchema=mongoose.Schema({
+
+
+const movieSchema=mongoose.Schema({
     director_name:{
         type:String,
     },
     actors:{
-        type:[{ActorSchema}],
+        type:[String],
     },
     genres:{
-        type:[{GenreSchema}]
+        type:[String]
     },
     movie_title:{
         type:String
@@ -19,4 +19,4 @@ const moviesSchema=mongoose.Schema({
 },{timestamps:true});
 
 
-module.exports=mongoose.model("Movie",moviesSchema);
+module.exports=mongoose.model("Movies",movieSchema);
