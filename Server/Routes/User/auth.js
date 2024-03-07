@@ -1,5 +1,6 @@
 const express = require("express");
 
+const {authController}= require("../../Controllers/index");
 const {
   registerUser,
   loginUser,
@@ -9,7 +10,8 @@ const {
   toggletwofa,
   otpTwoFAUser,
   loginTwoFA
-} = require("../../Controllers/index");
+} =authController
+
 const auth = require("../../Middlewares/auth");
 
 const authRouter = express.Router();

@@ -1,13 +1,4 @@
-const {
-    registerUser,
-    loginUser,
-    changePassword,
-    forgetPassword,
-    resetPassword,
-    toggletwofa,
-    otpTwoFAUser,
-    loginTwoFA
-}=require('./User/auth');
+const authController=require('./User/auth');
 
 
-module.exports=require('./User/auth');
+module.exports={authController};
