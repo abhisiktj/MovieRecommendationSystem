@@ -1,25 +1,24 @@
 //importing npm packages
 const expressAsyncHandler = require("express-async-handler");
 const statusCodes = require("http-status-codes");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 
 //importing models
-const User = require("../Models/user");
+const User = require("../../Models/user");
 
 //importing utils
-const CustomError = require("../Utils/customError");
-const { generateTOTP } = require("../Utils/generateOtp");
-const { sendMail } = require("../Utils/mail");
+const CustomError = require("../../Utils/customError");
+const { generateTOTP } = require("../../Utils/generateOtp");
+const { sendMail } = require("../../Utils/mail");
 
 const {loginOTPCache,
   resetPasswordOTPCache,
   setCache,
   getCache,
   takeCache,
-  hasCache}=require('../Utils/User/cache');
-const { genSalt } = require("../Utils/genSalt");
+  hasCache}=require('../../Utils/User/cache');
+const { genSalt } = require("../../Utils/genSalt");
 
 
 

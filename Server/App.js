@@ -8,7 +8,7 @@ const connect=require('./Config/db');
 const Movie=require('./Models/movie');
 
 //importing Routers
-const userRouter=require('./Routes/user');
+const {authRouter}=require('./Routes/index');
 
 //importing Error Handler
 
@@ -18,7 +18,7 @@ const app=express();
 
 app.use(express.json());
 
-app.use('/api/v1/user',userRouter);
+app.use('/api/v1/user/auth',authRouter);
 
 app.use(notFound);
 app.use(errorHandler);
