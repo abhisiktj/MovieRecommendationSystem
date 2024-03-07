@@ -8,7 +8,7 @@ const notFound=expressAsyncHandler(async(req,res)=>{
 
 const errorHandler=async(error,req,res,next)=>{
  
-  console.log(error.message);
+  console.log(error);
         if(error instanceof CustomError){
             res.status(error.statusCode).json({success:false,message:error.message});
         }

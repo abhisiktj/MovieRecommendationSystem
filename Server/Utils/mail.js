@@ -28,6 +28,7 @@ async function wrapedSendMail(mailOptions) {
 
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
+        console.log(error);
         resolve(false);
       } else {
         resolve(true);

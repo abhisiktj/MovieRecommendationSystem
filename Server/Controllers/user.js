@@ -19,6 +19,7 @@ const {loginOTPCache,
   getCache,
   takeCache,
   hasCache}=require('../Utils/User/cache');
+const { genSalt } = require("../Utils/genSalt");
 
 
 
@@ -46,18 +47,20 @@ const registerUser = expressAsyncHandler(async (req, res) => {
       "Password Field Can not be empty"
     );
   }
+
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new CustomError(statusCodes.BAD_REQUEST, "User Already Exist");
   }
 
-  const salting = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salting);
+  const salt=genSalt();
   const user = await User.create({
     name,
     email,
-    password: hashedPassword,
+    password,
+    salt
   });
+
 
   const token = jwt.sign(
     {
@@ -109,7 +112,8 @@ const loginUser = expressAsyncHandler(async (req, res) => {
     });
   }
 
-  const isMatched = bcrypt.compare(password, user?.password);
+  
+  const isMatched=user.validPassword(password);
 
   if (!isMatched)
     throw new CustomError(statusCodes.UNAUTHORIZED, "Incorrect Password");
@@ -155,7 +159,7 @@ const otpTwoFAUser = expressAsyncHandler(async (req,res) => {
       "No User With Such Email exists"
     );
 
-  const isMatched = bcrypt.compare(password, user?.password);
+    const isMatched=user.validPassword(password);
 
   if (!isMatched)
     throw new CustomError(statusCodes.UNAUTHORIZED, "Incorrect Password");
@@ -226,7 +230,7 @@ const loginTwoFA=expressAsyncHandler(async(req,res)=>{
       "No User With Such Email exists"
     );
 
-  const isMatched = bcrypt.compare(password, user?.password);
+    const isMatched=user.validPassword(password);
 
   if (!isMatched)
     throw new CustomError(statusCodes.UNAUTHORIZED, "Incorrect Password");
@@ -262,8 +266,7 @@ const loginTwoFA=expressAsyncHandler(async(req,res)=>{
 })
 
 //change password
-const changePassword = expressAsyncHandler(
-  expressAsyncHandler(async (req, res) => {
+const changePassword =expressAsyncHandler(async (req, res) => {
     const { password, newPassword } = req.body;
 
     if (!password) {
@@ -275,24 +278,21 @@ const changePassword = expressAsyncHandler(
     if (!newPassword) {
       throw new CustomError(
         statusCodes.BAD_REQUEST,
-        "Password Field Can not be empty"
+        "New Password Field Can not be empty"
       );
     }
 
-    const isMatched = await bcrypt.compare(password, req.user?.password);
+     let user=req.user;
+     const email = user.email;
+    const isMatched=user.validPassword(password);
+ 
 
-    const email = req.user.email;
     if (!isMatched)
       throw new CustomError(statusCodes.UNAUTHORIZED, "Incorrect Password");
 
-    const salting = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salting);
-
-    const user = await User.findOneAndUpdate(
-      { email },
-      { password: hashedPassword },
-      { new: true }
-    );
+    
+      user.password=newPassword;
+      await user.save();
 
     res.status(statusCodes.CREATED).json({
       success: true,
@@ -301,7 +301,7 @@ const changePassword = expressAsyncHandler(
       },
     });
   })
-);
+
 
 
 //forgetPassword
@@ -368,6 +368,7 @@ controller to change password using otp
 */
 const resetPassword = expressAsyncHandler(async (req, res) => {
   const { otp, email, password } = req.body;
+
   if (!otp) {
     throw new CustomError(statusCodes.BAD_REQUEST, "OTP required");
   }
@@ -376,7 +377,7 @@ const resetPassword = expressAsyncHandler(async (req, res) => {
   }
 
   if (!password) {
-    throw new password(statusCodes.BAD_REQUEST, "Password field is required");
+    throw new CustomError(statusCodes.BAD_REQUEST, "Password field is required");
   }
 
   const user = await User.findOne({ email });
@@ -401,14 +402,9 @@ const resetPassword = expressAsyncHandler(async (req, res) => {
       "Incorrect OTP.Generate OTP again"
     );
 
-  const salting = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salting);
-
-  const updatedUser = await User.findByIdAndUpdate(
-    user._id,
-    { password: hashedPassword },
-    { new: true }
-  );
+  
+  user.password=password;
+  await user.save();
 
   res.status(statusCodes.CREATED).json({
     success: true,
@@ -439,7 +435,7 @@ const toggletwofa = expressAsyncHandler(async (req, res) => {
   if (toggle == "true") flag = true;
 
   const user = req.user;
-  const isMatched = bcrypt.compare(password, user?.password);
+  const isMatched=user.validPassword(password);
 
   if (!isMatched)
     throw new CustomError(statusCodes.UNAUTHORIZED, "Incorrect Password");
