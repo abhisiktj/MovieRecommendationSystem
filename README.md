@@ -1,6 +1,7 @@
-# Movie Recommendation System
+# Movie Sense
 
-Content Based Movie Recommendation System with Sentiment Analysis. This is a Microservice written in MVC pattern.
+Movie Management System with content based recommendations and sentiment analysis.
+This repository is the management system written in MVC Pattern.
 
 
 
