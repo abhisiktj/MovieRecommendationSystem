@@ -1,4 +1,6 @@
 require("dotenv").config();
+const cors=require('cors');
+
 const express=require("express");
 const csvToDB=require('./Utils/Movies/csvToDb');
   
@@ -8,7 +10,7 @@ const connect=require('./Config/db');
 const Movie=require('./Models/movie');
 
 //importing Routers
-const {authRouter}=require('./Routes/index');
+const {authRouter,apiRouter}=require('./Routes/index');
 
 //importing Error Handler
 
@@ -16,9 +18,17 @@ const {notFound,errorHandler}=require('./Middlewares/error');
 
 const app=express();
 
+app.use(
+    cors({
+      origin: '*',
+      credentials: true,
+    })
+  );
+
 app.use(express.json());
 
 app.use('/api/v1/user/auth',authRouter);
+app.use('/api/v1/movie/api',apiRouter);
 
 app.use(notFound);
 app.use(errorHandler);

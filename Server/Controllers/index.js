@@ -1,4 +1,5 @@
 const authController=require('./User/auth');
+const apiController=require('./Movie/api');
 
 
-module.exports={authController};
+module.exports={authController,apiController};

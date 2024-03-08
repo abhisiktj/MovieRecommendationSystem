@@ -1,5 +1,5 @@
 const {authRouter}=require('./User/auth');
-
+const {apiRouter}=require('./Movie/api');
 
 
 
@@ -10,5 +10,6 @@ const {authRouter}=require('./User/auth');
 
 
 module.exports={
-    authRouter
+    authRouter,
+    apiRouter
 }
