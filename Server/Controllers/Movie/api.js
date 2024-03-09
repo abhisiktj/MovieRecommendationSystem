@@ -7,7 +7,7 @@ const expressAsyncHandler = require("express-async-handler");
 const { StatusCodes } = require("http-status-codes");
 
 
-const {getMovies,getMovieDetails} = require("../../Utils/Movies/tmdb");
+const {getMovies,getMovieDetails,getCredits} = require("../../Utils/Movies/tmdb");
 const CustomError=require('../../Utils/customError');
 
 const getMoviesController = expressAsyncHandler(async (req, res) => {
@@ -29,7 +29,20 @@ const getMovieDetailsController = expressAsyncHandler(async(req, res) => {
    res.status(StatusCodes.OK).json(apiData);
 });
 
+
+const getCreditsFromMovieId=expressAsyncHandler(async(req,res)=>{
+  const {movie_id}=req.params
+
+  const data=await getCredits(movie_id);
+  if(!data){
+    throw new CustomError(StatusCodes.NOT_FOUND,"Unable to fetch data");
+  }
+  res.status(StatusCodes.OK).json(data);
+})
+
 module.exports = {
   getMoviesController,
   getMovieDetailsController,
+  getCreditsFromMovieId
 };
+
