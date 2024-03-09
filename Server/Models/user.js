@@ -25,6 +25,10 @@ const userSchema=mongoose.Schema({
     twofaenabled:{
         type:Boolean,
         default:false
+    },
+    favourites:{
+        type:[String],
+        default:[]
     }
 },{timestamps:true});
 

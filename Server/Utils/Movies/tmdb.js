@@ -67,6 +67,7 @@ const getMovies=async(queries)=>{
 }
 
 const getMovieDetails=async(movie_id)=>{
+  console.log(movie_id);
     const url=`https://api.themoviedb.org/3/movie/${movie_id}?api_key=${api_key}`;
 
    return new Promise(async(resolve,reject)=>{
@@ -74,6 +75,7 @@ const getMovieDetails=async(movie_id)=>{
         const response=await axios.get(url);
         resolve(response.data);
      } catch (error) {
+      console.log(error.status_message);
         resolve(false);
      }
    })
