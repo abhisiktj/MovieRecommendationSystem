@@ -75,7 +75,6 @@ const getMovieDetails = async (movie_id) => {
 
 const getCredits = async (movie_id) => {
   const url = `https://api.themoviedb.org/3/movie/${movie_id}/credits?api_key=${api_key}&language=en-US`;
-  console.log(url);
   return new Promise(async (resolve, reject) => {
     try {
       const response = await axios.get(url);
@@ -87,4 +86,18 @@ const getCredits = async (movie_id) => {
   });
 };
 
-module.exports = { getMovies, getMovieDetails, getCredits };
+const getReviews=async( movie_id)=>{
+  const url=`https://api.themoviedb.org/3/movie/${movie_id}/reviews?api_key=${api_key}`
+  console.log(url);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await axios.get(url);
+      resolve(response.data);
+    } catch (error) {
+      console.log(error.status_message);
+      resolve(false);
+    }
+  });
+}
+
+module.exports = { getMovies, getMovieDetails, getCredits,getReviews };
