@@ -10,7 +10,7 @@ const connect=require('./Config/db');
 const Movie=require('./Models/movie');
 
 //importing Routers
-const {authRouter,apiRouter,userMovieRouter}=require('./Routes/index');
+const {authRouter,apiRouter,userMovieRouter,watchlistRouter}=require('./Routes/index');
 
 //importing Error Handler
 const {notFound,errorHandler}=require('./Middlewares/error');
@@ -27,7 +27,9 @@ app.use(
 app.use(express.json());
 app.use('/api/v1/user/auth',authRouter);
 app.use('/api/v1/user/movie',userMovieRouter);
+app.use('/api/v1/user/watchlist/',watchlistRouter);
 app.use('/api/v1/movie/api',apiRouter);
+
 
 app.use(notFound);
 app.use(errorHandler);
@@ -41,8 +43,8 @@ try{
      Drops the Movies collections
      Adds csv file to movies collection whenever server is started
      */
-     Movie.collection.drop();
-     await csvToDB(__dirname);
+   //  Movie.collection.drop();
+     // await csvToDB(__dirname);
      app.listen(port,()=>{
         console.log(`Server running on port ${port}`);
      })

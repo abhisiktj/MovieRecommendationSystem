@@ -3,6 +3,19 @@
 const axios = require("axios");
 const api_key = process.env.tmdb_api_key;
 
+
+
+const axiosGetHelper=async(url)=>{
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await axios.get(url);
+      resolve(response.data);
+    } catch (e) {
+      resolve(false);
+    }
+  });
+}
+
 const getMovies = async (queries) => {
   const base_url = "https://api.themoviedb.org/3/discover/movie";
 
@@ -49,55 +62,30 @@ const getMovies = async (queries) => {
       } else url += `&${key}=${optionalQueries[`${key}`]}`;
   });
 
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await axios.get(url);
-      resolve(response.data);
-    } catch (e) {
-      resolve(false);
-    }
-  });
+   return await axiosGetHelper(url);
 };
 
 const getMovieDetails = async (movie_id) => {
   const url = `https://api.themoviedb.org/3/movie/${movie_id}?api_key=${api_key}`;
-
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await axios.get(url);
-      resolve(response.data);
-    } catch (error) {
-      console.log(error.status_message);
-      resolve(false);
-    }
-  });
+  return await axiosGetHelper(url);
 };
 
 const getCredits = async (movie_id) => {
   const url = `https://api.themoviedb.org/3/movie/${movie_id}/credits?api_key=${api_key}&language=en-US`;
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await axios.get(url);
-      resolve(response.data);
-    } catch (error) {
-      console.log(error.status_message);
-      resolve(false);
-    }
-  });
+  return await axiosGetHelper(url);
 };
 
 const getReviews=async( movie_id)=>{
   const url=`https://api.themoviedb.org/3/movie/${movie_id}/reviews?api_key=${api_key}`
-  console.log(url);
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await axios.get(url);
-      resolve(response.data);
-    } catch (error) {
-      console.log(error.status_message);
-      resolve(false);
-    }
-  });
+  return await axiosGetHelper(url);
 }
 
-module.exports = { getMovies, getMovieDetails, getCredits,getReviews };
+//for Search Functionality
+const getMoviesByName=async(query,page)=>{
+  const url=`https://api.themoviedb.org/3/search/movie?api_key=${api_key}query=${query}&include_adult=false&language=en-US&page=${page}`;
+  return await axiosGetHelper(url);
+}
+
+module.exports = { getMovies, getMovieDetails, getCredits,getReviews,getMoviesByName };
+
+

@@ -7,7 +7,7 @@ const expressAsyncHandler = require("express-async-handler");
 const { StatusCodes } = require("http-status-codes");
 
 
-const {getMovies,getMovieDetails,getCredits,getReviews} = require("../../Utils/Movies/tmdb");
+const {getMovies,getMovieDetails,getCredits,getReviews,getMoviesByName} = require("../../Utils/Movies/tmdb");
 const CustomError=require('../../Utils/customError');
 
 const getMoviesController = expressAsyncHandler(async (req, res) => {
@@ -27,6 +27,18 @@ const getMovieDetailsController = expressAsyncHandler(async(req, res) => {
 
    res.status(StatusCodes.OK).json(apiData);
 });
+
+//for search functionality
+const getMoviesByNameController=expressAsyncHandler(async(req,res)=>{
+   const {query,page}=req.query;
+   if(!page)
+     page=1;
+  const data=await getMoviesByName(query,page);
+  if(!data){
+    throw new CustomError(StatusCodes.NOT_FOUND,"Unable to fetch data");
+  }
+  res.status(StatusCodes.OK).json(data);
+})
 
 const getCreditsFromMovieId=expressAsyncHandler(async(req,res)=>{
   const {movie_id}=req.params
@@ -48,10 +60,12 @@ const getReviewsFromMovieId=expressAsyncHandler(async(req,res)=>{
   res.status(StatusCodes.OK).json(data);
 })
 
+
 module.exports = {
   getMoviesController,
   getMovieDetailsController,
   getCreditsFromMovieId,
-  getReviewsFromMovieId
+  getReviewsFromMovieId,
+  getMoviesByNameController
 };
 

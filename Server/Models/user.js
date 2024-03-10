@@ -29,7 +29,11 @@ const userSchema=mongoose.Schema({
     favourites:{
         type:[String],
         default:[]
-    }
+    },
+    watchlist: {
+        type: mongoose.Types.ObjectId,
+        ref: "Watchlist",
+      },
 },{timestamps:true});
 
 

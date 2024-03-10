@@ -17,8 +17,7 @@ const auth = expressAsyncHandler(async (req, res, next) => {
       const token = authorization.split(" ")[1];
       try{
       const {id} =jwt.verify(token, process.env.JWTSECRETKEY);
-      req.user = await User.findById(id,{favourites:0});
-      //console.log(req.user);
+      req.user = await User.findById(id).select('-favourites');
       next();
       }
       catch(error){
