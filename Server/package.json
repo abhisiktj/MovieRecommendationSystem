@@ -21,6 +21,7 @@
     "mongoose": "^8.2.1",
     "node-cache": "^5.1.2",
     "nodemailer": "^6.9.11",
+    "socket.io": "^4.7.4",
     "validator": "^13.11.0"
   },
   "devDependencies": {

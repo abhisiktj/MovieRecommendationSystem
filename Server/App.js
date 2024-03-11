@@ -1,21 +1,22 @@
 require("dotenv").config();
 const cors=require('cors');
-
+const http=require('http');
 const express=require("express");
-const csvToDB=require('./Utils/Movies/csvToDb');
-  
+
 const connect=require('./Config/db');
 
-//imprting models
-const Movie=require('./Models/movie');
+
+
 
 //importing Routers
 const {authRouter,apiRouter,userMovieRouter,watchlistRouter}=require('./Routes/index');
 
 //importing Error Handler
 const {notFound,errorHandler}=require('./Middlewares/error');
+const searchUsingSockets= require("./Utils/Movies/searchUsingSockets");
 
 const app=express();
+const server = http.createServer(app);
 
 app.use(
     cors({
@@ -25,6 +26,8 @@ app.use(
   );
 
 app.use(express.json());
+app.use(express.static(__dirname + '/static'));
+
 app.use('/api/v1/user/auth',authRouter);
 app.use('/api/v1/user/movie',userMovieRouter);
 app.use('/api/v1/user/watchlist/',watchlistRouter);
@@ -39,13 +42,8 @@ const MONGO_URL=process.env.MONGO_URL;
 const start=async()=>{
 try{
      await connect(MONGO_URL);
-     /*
-     Drops the Movies collections
-     Adds csv file to movies collection whenever server is started
-     */
-   //  Movie.collection.drop();
-     // await csvToDB(__dirname);
-     app.listen(port,()=>{
+     searchUsingSockets(server);
+     server.listen(port,()=>{
         console.log(`Server running on port ${port}`);
      })
 }

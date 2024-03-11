@@ -1,6 +1,11 @@
+/*
+deprecated
+*/
+
+
 const Path = require("path");
 const csv = require("csvtojson");
-const Movie=require('..//../Models/movie');
+// const Movie=require('..//../Models/movie');
 
 
 const csvToDB = async (path) => {

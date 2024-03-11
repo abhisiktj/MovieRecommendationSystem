@@ -1,0 +1,35 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Autocomplete Feature</title>
+</head>
+<body>
+  <input type="text" id="searchInput">
+  <ul id="autocompleteList"></ul>
+  
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    const searchInput = document.getElementById('searchInput');
+    const autocompleteList = document.getElementById('autocompleteList');
+
+    searchInput.addEventListener('input', () => {
+        console.log(searchInput);
+      const searchTerm = searchInput.value.trim();
+      socket.emit('autocomplete', searchTerm);
+    });
+
+    socket.on('autocompleteSuggestions', (suggestions) => {
+      autocompleteList.innerHTML = '';
+      suggestions.forEach((suggestion) => {
+        console.log(suggestion);
+        const li = document.createElement('li');
+        li.textContent = suggestion;
+        autocompleteList.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>
