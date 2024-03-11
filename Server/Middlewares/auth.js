@@ -17,12 +17,19 @@ const auth = expressAsyncHandler(async (req, res, next) => {
       const token = authorization.split(" ")[1];
       try{
       const {id} =jwt.verify(token, process.env.JWTSECRETKEY);
+      }
+      
+      catch(error){
+        throw new CustomError(statusCodes.UNAUTHORIZED,"Unauthorized Access");
+      }
+      try{
       req.user = await User.findById(id).select('-favourites');
       next();
       }
       catch(error){
         throw new CustomError(statusCodes.UNAUTHORIZED,"Unauthorized Access");
       }
+
 
   });
 

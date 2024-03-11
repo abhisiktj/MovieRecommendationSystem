@@ -22,13 +22,7 @@
     });
 
     socket.on('autocompleteSuggestions', (suggestions) => {
-      autocompleteList.innerHTML = '';
-      suggestions.forEach((suggestion) => {
-        console.log(suggestion);
-        const li = document.createElement('li');
-        li.textContent = suggestion;
-        autocompleteList.appendChild(li);
-      });
+      console.log(suggestions);
     });
   </script>
 </body>

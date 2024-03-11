@@ -1,4 +1,6 @@
-// socketLogic.js
+const {getMoviesByName}=require('./tmdb');
+
+
 const socketIo = require('socket.io');
 
 function initializeSocket(server) {
@@ -6,16 +8,13 @@ function initializeSocket(server) {
 
   io.on('connection', (socket) => {
     
-    socket.on('autocomplete', (searchTerm) => {
-        
-      // Implement autocomplete logic here
-      console.log(searchTerm);
-      const suggestions = ['suggestion1', 'suggestion2', 'suggestion3'];
-      socket.emit('autocompleteSuggestions', suggestions);
+    socket.on('autocomplete', async (searchTerm) => {
+       const suggestions=await getMoviesByName(searchTerm,1);
+       socket.emit('autocompleteSuggestions', suggestions);
     });
 
     socket.on('disconnect', () => {
-      console.log('User disconnected');
+      console.log(`User disconnected`);
     });
   });
 }

@@ -77,12 +77,14 @@ const getCredits = async (movie_id) => {
 
 const getReviews=async( movie_id)=>{
   const url=`https://api.themoviedb.org/3/movie/${movie_id}/reviews?api_key=${api_key}`
+  console.log(url);
   return await axiosGetHelper(url);
 }
 
 //for Search Functionality
 const getMoviesByName=async(query,page)=>{
-  const url=`https://api.themoviedb.org/3/search/movie?api_key=${api_key}query=${query}&include_adult=false&language=en-US&page=${page}`;
+  const url=`https://api.themoviedb.org/3/search/movie?api_key=${api_key}&query=${query}&include_adult=false&language=en-US&page=${page}`;
+  console.log(url);
   return await axiosGetHelper(url);
 }
 

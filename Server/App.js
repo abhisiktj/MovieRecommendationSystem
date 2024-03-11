@@ -14,6 +14,7 @@ const {authRouter,apiRouter,userMovieRouter,watchlistRouter}=require('./Routes/i
 //importing Error Handler
 const {notFound,errorHandler}=require('./Middlewares/error');
 const searchUsingSockets= require("./Utils/Movies/searchUsingSockets");
+const rateLimitMiddleware = require("./Middlewares/rateLimit");
 
 const app=express();
 const server = http.createServer(app);
@@ -25,6 +26,7 @@ app.use(
     })
   );
 
+app.use(rateLimitMiddleware);
 app.use(express.json());
 app.use(express.static(__dirname + '/static'));
 
