@@ -7,7 +7,7 @@ class TokenBucket {
     }
 
     consume(tokens) {
-        console.log("first "+this.lastRefillTime)
+
         const currentTime = Date.now();
         const elapsedSeconds = (currentTime - this.lastRefillTime) / 1000;
 
@@ -15,7 +15,7 @@ class TokenBucket {
         const refillAmount = elapsedSeconds * this.refillRate;
         this.tokens = Math.min(this.capacity, this.tokens + refillAmount);
         this.lastRefillTime = currentTime;
-        console.log("second "+this.lastRefillTime)
+
         // Check if there are enough tokens to fulfill the request
         if (this.tokens >= tokens) {
             this.tokens -= tokens;

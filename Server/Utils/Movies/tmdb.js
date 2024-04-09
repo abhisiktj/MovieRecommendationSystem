@@ -6,7 +6,7 @@ const api_key = process.env.tmdb_api_key;
 
 
 const axiosGetHelper=async(url)=>{
-
+console.log(url);
 
   return new Promise(async (resolve, reject) => {
     try {
@@ -90,7 +90,6 @@ const getReviews=async( movie_id)=>{
 //for Search Functionality
 const getMoviesByName=async(query,page)=>{
   const url=`https://api.themoviedb.org/3/search/movie?api_key=${api_key}&query=${query}&include_adult=false&language=en-US&page=${page}`;
-  console.log(url);
   return await axiosGetHelper(url);
 }
 

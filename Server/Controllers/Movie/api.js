@@ -30,7 +30,7 @@ const getMovieDetailsController = expressAsyncHandler(async(req, res) => {
 
 //for search functionality
 const getMoviesByNameController=expressAsyncHandler(async(req,res)=>{
-   const {query,page}=req.query;
+   let {query,page}=req.query;
    if(!page)
      page=1;
   const data=await getMoviesByName(query,page);
