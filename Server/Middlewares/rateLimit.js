@@ -1,6 +1,3 @@
-//rate limitting using node-cache implementing token bucket algorithm
-const NodeCache=require('node-cache');
-
 class TokenBucket {
     constructor(capacity, refillRate) {
         this.capacity = capacity; // Maximum number of tokens the bucket can hold
@@ -10,6 +7,7 @@ class TokenBucket {
     }
 
     consume(tokens) {
+        console.log("first "+this.lastRefillTime)
         const currentTime = Date.now();
         const elapsedSeconds = (currentTime - this.lastRefillTime) / 1000;
 
@@ -17,7 +15,7 @@ class TokenBucket {
         const refillAmount = elapsedSeconds * this.refillRate;
         this.tokens = Math.min(this.capacity, this.tokens + refillAmount);
         this.lastRefillTime = currentTime;
-
+        console.log("second "+this.lastRefillTime)
         // Check if there are enough tokens to fulfill the request
         if (this.tokens >= tokens) {
             this.tokens -= tokens;
@@ -32,15 +30,15 @@ class RateLimiter {
     constructor(capacity, refillRate) {
         this.capacity = capacity; // Maximum number of tokens per IP address
         this.refillRate = refillRate; // Rate at which tokens are added per IP address (tokens per second)
-        this.cache = new NodeCache(); // NodeCache instance to store token buckets for each IP address
+        this.ipBuckets = {}; // Object to store token buckets for each IP address
     }
 
     consume(ip, tokens) {
-        let bucket = this.cache.get(ip);
+        let bucket = this.ipBuckets[ip];
 
         if (!bucket) {
             bucket = new TokenBucket(this.capacity, this.refillRate);
-            this.cache.set(ip, bucket);
+            this.ipBuckets[ip] = bucket;
         }
 
         return bucket.consume(tokens);
@@ -61,4 +59,4 @@ function rateLimitMiddleware(req, res, next) {
     }
 }
 
-module.exports=rateLimitMiddleware;
+module.exports = rateLimitMiddleware;

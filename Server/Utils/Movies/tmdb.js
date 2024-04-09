@@ -1,18 +1,14 @@
 // tmdb api service
 
 const axios = require("axios");
-const { resultsCache } = require("./cache");
 const api_key = process.env.tmdb_api_key;
 
 
 
 const axiosGetHelper=async(url)=>{
-  if(resultsCache.has(url)!=true){
-    return resultsCache.get(url);
-  }
 
 
-  const promise= new Promise(async (resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
       const response = await axios.get(url);
       if(resultsCache.has(url ) && resultsCache.get(url)==true)
