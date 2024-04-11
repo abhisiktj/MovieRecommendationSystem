@@ -5,11 +5,8 @@ const express=require("express");
 
 const connect=require('./Config/db');
 
-
-
-
 //importing Routers
-const {authRouter,apiRouter,userMovieRouter,watchlistRouter}=require('./Routes/index');
+const {authRouter,apiRouter,userMovieRouter,watchlistRouter,modelRouter}=require('./Routes/index');
 
 //importing Error Handler
 const {notFound,errorHandler}=require('./Middlewares/error');
@@ -34,7 +31,7 @@ app.use('/api/v1/user/auth',authRouter);
 app.use('/api/v1/user/movie',userMovieRouter);
 app.use('/api/v1/user/watchlist/',watchlistRouter);
 app.use('/api/v1/movie/api',apiRouter);
-
+app.use('/api/v1/model',modelRouter);
 
 app.use(notFound);
 app.use(errorHandler);
